@@ -25,7 +25,12 @@ fun Route.userRoutes() {
                 call.respond(HttpStatusCode.Conflict)
             }
 
-            
+            val emailPattern = ("^[a-zA-Z0-9_!#\$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\$").toRegex()
+
+            if(!emailPattern.matches(userRegisterRequest.email)) {
+                call.respond(HttpStatusCode.BadRequest)
+            }
+
         }
     }
 }
