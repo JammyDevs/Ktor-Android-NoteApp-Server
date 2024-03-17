@@ -1,6 +1,7 @@
 package eu.bbsapps.routing
 
 import eu.bbsapps.data.requests.UserRegisterRequest
+import eu.bbsapps.database
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -17,7 +18,14 @@ fun Route.userRoutes() {
                 call.receive<UserRegisterRequest>()
             }catch (e: ContentTransformationException) {
                 call.respond(HttpStatusCode.BadRequest)
+                return@post
             }
+
+            if(database.checkIfEmailExist(userRegisterRequest.email)) {
+                call.respond(HttpStatusCode.Conflict)
+            }
+
+            
         }
     }
 }
