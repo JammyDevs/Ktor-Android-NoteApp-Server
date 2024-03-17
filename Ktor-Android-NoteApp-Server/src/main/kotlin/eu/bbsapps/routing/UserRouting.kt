@@ -1,7 +1,9 @@
 package eu.bbsapps.routing
 
+import eu.bbsapps.data.model.User
 import eu.bbsapps.data.requests.UserRegisterRequest
 import eu.bbsapps.database
+import eu.bbsapps.util.getHashWithSalt
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -29,6 +31,14 @@ fun Route.userRoutes() {
 
             if(!emailPattern.matches(userRegisterRequest.email)) {
                 call.respond(HttpStatusCode.BadRequest)
+            }
+
+            val hashPassword = getHashWithSalt(userRegisterRequest.password)
+
+            if(database.registerUser(User(userRegisterRequest.email , userRegisterRequest.username, hashPassword))) {
+                call.respond(HttpStatusCode.Created)
+            }else{
+                call.respond(HttpStatusCode.InternalServerError)
             }
 
         }
