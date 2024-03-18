@@ -1,6 +1,7 @@
 package eu.bbsapps.routing
 
 import eu.bbsapps.data.model.User
+import eu.bbsapps.data.requests.UserLoginRequest
 import eu.bbsapps.data.requests.UserRegisterRequest
 import eu.bbsapps.database
 import eu.bbsapps.util.getHashWithSalt
@@ -13,6 +14,26 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.userRoutes() {
+
+    route("/login") {
+        post {
+
+            val userLoginRequest = try {
+                call.receive<UserLoginRequest>()
+            }catch (e: ContentTransformationException) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+
+            if (database.checkPasswordForEmail(userLoginRequest.email,userLoginRequest.password)) {
+                call.respond(HttpStatusCode.OK)
+                return@post
+            }
+
+            call.respond(HttpStatusCode.Unauthorized)
+
+        }
+    }
 
     route("/register") {
         post {
