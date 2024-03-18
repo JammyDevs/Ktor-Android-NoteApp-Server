@@ -42,8 +42,8 @@ class NotesDatabase : NoteDataAccessObject  {
     }
 
     override suspend fun updateNote(note: Note): Boolean {
-        notes.updateOne(note.id, setValue(Note::title, note.title))
-        notes.updateOne(note.id, setValue(Note::title, note.text))
+        notes.updateOneById(note.id, setValue(Note::title, note.title))
+        notes.updateOneById(note.id, setValue(Note::title, note.text))
         return notes.updateOneById(note.id, setValue(Note::timeStamp, System.currentTimeMillis())).wasAcknowledged()
     }
 
@@ -53,5 +53,9 @@ class NotesDatabase : NoteDataAccessObject  {
 
     override suspend fun isNoteOwnedBy(noteId: String, userId: String): Boolean {
         return notes.findOneById(noteId)?.owner == userId
+    }
+
+    override suspend fun deleteNote(noteId: String): Boolean {
+        return notes.deleteOneById(noteId).wasAcknowledged()
     }
 }

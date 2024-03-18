@@ -57,7 +57,7 @@ fun Route.noteRoutes() {
                             return@patch
                         }
 
-                        if (!database.checkIfEmailExist(noteId)) {
+                        if (!database.checkIfNoteExist(noteId)) {
                             call.respond(HttpStatusCode.NotFound)
                             return@patch
                         }
@@ -75,6 +75,24 @@ fun Route.noteRoutes() {
                         }else {
                             call.respond(HttpStatusCode.Forbidden)
                         }
+                }
+
+                delete {
+                    val email = call.principal<UserIdPrincipal>()!!.name
+                    val noteId = call.request.queryParameters["id"] ?:  ""
+
+                    if (noteId == "") {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@delete
+                    }
+
+                    if (database.isNoteOwnedBy(noteId, database.getUserIdWithEmail(email))) {
+                        database.deleteNote(noteId)
+                        call.respond(HttpStatusCode.OK)
+                        return@delete
+                    }else {
+                        call.respond(HttpStatusCode.Forbidden)
+                    }
                 }
             }
     }

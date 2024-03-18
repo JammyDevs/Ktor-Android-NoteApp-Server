@@ -22,4 +22,6 @@ interface NoteDataAccessObject {
     suspend fun checkIfNoteExist(noteId: String): Boolean
 
     suspend fun isNoteOwnedBy(noteId: String, userId: String): Boolean
+
+    suspend fun deleteNote(noteId: String) : Boolean
 }
