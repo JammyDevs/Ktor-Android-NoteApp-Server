@@ -21,60 +21,60 @@ fun Route.noteRoutes() {
                 }
 
                 post {
-                    val email = call.principal<UserIdPrincipal>()!!.name
+                        val email = call.principal<UserIdPrincipal>()!!.name
 
-                    val noteData = try {
-                        call.receive<NoteRequest>()
-                    }catch (e: ContentTransformationException) {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@post
-                    }
+                        val noteData = try {
+                            call.receive<NoteRequest>()
+                        }catch (e: ContentTransformationException) {
+                            call.respond(HttpStatusCode.BadRequest)
+                            return@post
+                        }
 
-                    val note = Note(
-                        title = noteData.title,
-                        text = noteData.title,
-                        timeStamp = System.currentTimeMillis(),
-                        owner = database.getUserIdWithEmail(email)
-                    )
-
-                    database.insertNote(note)
-
-                    call.respond(HttpStatusCode.OK, note)
-                }
-                patch {
-                    val email = call.principal<UserIdPrincipal>()!!.name
-
-                    val noteData = try {
-                        call.receive<NoteRequest>()
-                    }catch (e: ContentTransformationException) {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@patch
-                    }
-
-                    val noteId = call.request.queryParameters["id"] ?: ""
-                    if (noteId == "") {
-                        call.respond(HttpStatusCode.BadRequest)
-                        return@patch
-                    }
-
-                    if (!database.checkIfEmailExist(noteId)) {
-                        call.respond(HttpStatusCode.NotFound)
-                        return@patch
-                    }
-
-                    if (database.isNoteOwnedBy(noteId, database.getUserIdWithEmail(email))) {
                         val note = Note(
                             title = noteData.title,
-                            text = noteData.text,
-                            id = noteId
+                            text = noteData.title,
+                            timeStamp = System.currentTimeMillis(),
+                            owner = database.getUserIdWithEmail(email)
                         )
 
-                        database.updateNote(note)
+                        database.insertNote(note)
+
                         call.respond(HttpStatusCode.OK, note)
-                        return@patch
-                    }else {
-                        call.respond(HttpStatusCode.Forbidden)
-                    }
+                }
+                patch {
+                        val email = call.principal<UserIdPrincipal>()!!.name
+
+                        val noteData = try {
+                            call.receive<NoteRequest>()
+                        }catch (e: ContentTransformationException) {
+                            call.respond(HttpStatusCode.BadRequest)
+                            return@patch
+                        }
+
+                        val noteId = call.request.queryParameters["id"] ?: ""
+                        if (noteId == "") {
+                            call.respond(HttpStatusCode.BadRequest)
+                            return@patch
+                        }
+
+                        if (!database.checkIfEmailExist(noteId)) {
+                            call.respond(HttpStatusCode.NotFound)
+                            return@patch
+                        }
+
+                        if (database.isNoteOwnedBy(noteId, database.getUserIdWithEmail(email))) {
+                            val note = Note(
+                                title = noteData.title,
+                                text = noteData.text,
+                                id = noteId
+                            )
+
+                            database.updateNote(note)
+                            call.respond(HttpStatusCode.OK, note)
+                            return@patch
+                        }else {
+                            call.respond(HttpStatusCode.Forbidden)
+                        }
                 }
             }
     }
