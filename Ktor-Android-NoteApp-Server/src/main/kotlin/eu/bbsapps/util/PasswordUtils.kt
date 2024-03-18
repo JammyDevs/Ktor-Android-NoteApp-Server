@@ -7,7 +7,7 @@ import java.security.SecureRandom
         val salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(saltLength)
         val saltAsHex = Hex.encodeHexString(salt)
         val hash = DigestUtils.sha256Hex("$saltAsHex$stringToHash")
-        return "$saltAsHex$hash"
+        return "$saltAsHex:$hash"
     }
     fun checkHashForPassword(password: String, hashWithSalt: String): Boolean {
         val hashAndSalt = hashWithSalt.split(":")

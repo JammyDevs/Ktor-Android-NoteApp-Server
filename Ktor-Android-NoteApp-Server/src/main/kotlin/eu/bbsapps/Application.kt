@@ -2,6 +2,7 @@ package eu.bbsapps
 
 import eu.bbsapps.data.NoteDataAccessObject
 import eu.bbsapps.data.NotesDatabase
+import eu.bbsapps.routing.noteRoutes
 import eu.bbsapps.routing.userRoutes
 import io.ktor.serialization.gson.*
 import io.ktor.server.application.*
@@ -33,7 +34,7 @@ fun Application.module() {
     }
 
     install(Authentication) {
-
+        configureAuth()
     }
 
     install(Routing) {
@@ -43,8 +44,24 @@ fun Application.module() {
             }
 
             userRoutes()
+            noteRoutes()
         }
-
-
     }
 }
+
+private fun AuthenticationConfig.configureAuth() {
+    basic {
+        realm = "Notes Server"
+        validate { credentials ->
+            val email = credentials.name
+            val password = credentials.password
+            if (database.checkPasswordForEmail(email,password)) {
+                UserIdPrincipal(email)
+            }else {
+                null
+            }
+        }
+    }
+}
+
+

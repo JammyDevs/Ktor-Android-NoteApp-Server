@@ -46,17 +46,19 @@ fun Route.userRoutes() {
 
             if(database.checkIfEmailExist(userRegisterRequest.email)) {
                 call.respond(HttpStatusCode.Conflict)
+                return@post
             }
 
             val emailPattern = ("^[a-zA-Z0-9_!#\$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\$").toRegex()
 
             if(!emailPattern.matches(userRegisterRequest.email)) {
                 call.respond(HttpStatusCode.BadRequest)
+                return@post
             }
 
             val hashPassword = getHashWithSalt(userRegisterRequest.password)
 
-            if(database.registerUser(User(userRegisterRequest.email , userRegisterRequest.username, hashPassword))) {
+            if(database.registerUser(User(userRegisterRequest.email, userRegisterRequest.username, hashPassword))) {
                 call.respond(HttpStatusCode.Created)
             }else{
                 call.respond(HttpStatusCode.InternalServerError)
